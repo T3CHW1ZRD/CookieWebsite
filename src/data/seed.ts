@@ -39,13 +39,13 @@ export const seedContent: SiteContent = {
       id: "m1",
       name: "Classic Chocolate Chip",
       description: "The OG. Golden edges, melty chocolate, soft almond-flour crumb.",
-      image: asset("gallery/chocolate-chip.jpg"),
+      image: "",
     },
     {
       id: "m2",
       name: "White Chocolate Macadamia",
       description: "Buttery macadamias, creamy white chocolate, a hint of sea salt.",
-      image: asset("gallery/white-chocolate-macadamia.jpg"),
+      image: "",
     },
     {
       id: "m3",
@@ -57,7 +57,7 @@ export const seedContent: SiteContent = {
       id: "m4",
       name: "Salted Sticky Date",
       description: "Caramelly date, brown butter, finishing flake of sea salt.",
-      image: asset("gallery/salted-sticky-date.jpg"),
+      image: "",
     },
     {
       id: "m5",
@@ -73,10 +73,36 @@ export const seedContent: SiteContent = {
     },
   ],
   gallery: [
-    { id: "g1", src: asset("gallery/chocolate-chip.jpg"), caption: "Classic chocolate chip" },
-    { id: "g2", src: asset("gallery/white-chocolate-macadamia.jpg"), caption: "White chocolate macadamia" },
-    { id: "g3", src: asset("gallery/salted-sticky-date.jpg"), caption: "Salted sticky date" },
-    { id: "g4", src: asset("gallery/smores.jpg"), caption: "S'mores" },
+    {
+      id: "g1",
+      src: asset("gallery/chocolate-chip.jpg"),
+      caption: "Classic Chocolate Chip",
+    },
+    {
+      id: "g2",
+      src: asset("gallery/white-chocolate-macadamia.jpg"),
+      caption: "Box: White Chocolate Macadamia + Classic Chocolate Chip",
+    },
+    {
+      id: "g3",
+      src: asset("gallery/caramel-crunch-shortbread.webp"),
+      caption: "Caramel Crunch Shortbread",
+    },
+    {
+      id: "g4",
+      src: asset("gallery/salted-sticky-date.jpg"),
+      caption: "Box: Salted Sticky Date + Stuffed Pistachio + Classic Chocolate Chip",
+    },
+    {
+      id: "g5",
+      src: asset("gallery/stuffed-strawberry-cheesecake.jpg"),
+      caption: "Stuffed Strawberry Cheesecake",
+    },
+    {
+      id: "g6",
+      src: asset("gallery/smores.jpg"),
+      caption: "S'mores",
+    },
   ],
   reviews: [],
 };
