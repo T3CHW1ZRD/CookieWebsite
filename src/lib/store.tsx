@@ -11,7 +11,7 @@ import type { SiteContent } from "../types";
 import { seedContent } from "../data/seed";
 import contentJson from "../data/content.json";
 
-const STORAGE_KEY = "lailahs.content.v1";
+const STORAGE_KEY = "lailahs.content.v2";
 
 function loadInitial(): SiteContent {
   // 1. Use what's saved in this browser, if anything.
