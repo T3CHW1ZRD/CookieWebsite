@@ -36,13 +36,13 @@ export default function Nav() {
       }`}
     >
       <nav className="container-page flex h-16 items-center justify-between">
-        <a href="#top" className="flex items-center gap-3">
+        <a href="#top" className="flex items-center gap-2 sm:gap-3 min-w-0">
           <img
             src={logoSrc}
             alt={content.shop.brandName}
-            className="h-10 w-10 object-contain"
+            className="h-10 w-10 object-contain shrink-0"
           />
-          <span className="hidden sm:inline font-script text-2xl text-primary leading-none">
+          <span className="font-script text-xl sm:text-2xl text-primary leading-none whitespace-nowrap">
             {content.shop.brandName}
           </span>
         </a>
