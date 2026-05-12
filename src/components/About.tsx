@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import Reveal from "./Reveal";
 import { useContent } from "../lib/store";
 
@@ -12,19 +11,18 @@ export default function About() {
     <section id="about" className="py-20 md:py-28">
       <div className="container-page grid md:grid-cols-[1fr_1.4fr] gap-12 items-center">
         <Reveal variant="left">
-          <motion.div
-            whileInView={{ rotate: [0, -2, 2, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            viewport={{ once: false }}
-            className="relative mx-auto md:mx-0 max-w-xs"
-          >
-            <div className="absolute inset-0 -m-6 rounded-full bg-primary/15 blur-2xl" aria-hidden />
+          <div className="relative mx-auto md:mx-0 max-w-xs transform-gpu">
+            <div
+              className="absolute inset-0 -m-6 rounded-full bg-primary/15 blur-2xl transform-gpu"
+              style={{ willChange: "transform" }}
+              aria-hidden
+            />
             <img
               src={logoSrc}
               alt={content.shop.brandName}
               className="relative w-full h-auto object-contain drop-shadow-lg"
             />
-          </motion.div>
+          </div>
         </Reveal>
 
         <Reveal variant="right">

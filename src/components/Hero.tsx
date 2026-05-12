@@ -9,9 +9,17 @@ export default function Hero() {
 
   return (
     <section id="top" className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
-      {/* Soft pink gradient blobs */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-accent/70 blur-3xl" />
-      <div className="pointer-events-none absolute top-40 -right-32 h-96 w-96 rounded-full bg-secondary blur-3xl" />
+      {/* Soft pink gradient blobs. transform-gpu + will-change lock these to
+          their own GPU layer so mobile pinch-zoom doesn't repaint them and
+          cause the pink to flicker. */}
+      <div
+        className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-accent/70 blur-3xl transform-gpu"
+        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
+      />
+      <div
+        className="pointer-events-none absolute top-40 -right-32 h-96 w-96 rounded-full bg-secondary blur-3xl transform-gpu"
+        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
+      />
 
       <div className="container-page relative grid md:grid-cols-2 gap-10 items-center">
         <div>
