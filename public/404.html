@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lailah's Cookies</title>
+    <script>
+      // GitHub Pages 404 redirect: bounce back to the site root with the
+      // attempted path preserved as a hash so HashRouter picks it up.
+      (function () {
+        var l = window.location;
+        var base = "/CookieWebsite/";
+        if (l.pathname.indexOf(base) === 0) {
+          var rest = l.pathname.slice(base.length);
+          l.replace(l.origin + base + (rest ? "#/" + rest : ""));
+        } else {
+          l.replace("/");
+        }
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

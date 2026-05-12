@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Soft-pink palette matched to the Lailah's Cookies logo. */
+    --background: 340 100% 99%;
+    --foreground: 330 25% 18%;
+    --card: 340 100% 99%;
+    --card-foreground: 330 25% 18%;
+    --primary: 325 70% 72%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 330 60% 94%;
+    --secondary-foreground: 330 25% 18%;
+    --muted: 330 50% 97%;
+    --muted-foreground: 330 12% 38%;
+    --accent: 325 65% 86%;
+    --accent-foreground: 330 25% 18%;
+    --border: 330 40% 92%;
+    --ring: 325 70% 72%;
+    --radius: 0.75rem;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-primary text-primary-foreground;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3
+           font-sans font-semibold text-primary-foreground shadow-sm transition
+           hover:brightness-105 hover:shadow-md active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border
+           bg-background px-6 py-3 font-sans font-medium text-foreground transition
+           hover:bg-secondary;
+  }
+
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal-left.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal-right.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

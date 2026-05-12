@@ -1,0 +1,22 @@
+{
+  "shop": {
+    "brandName": "Lailah's Cookies",
+    "tagline": "",
+    "heroHeadline": "",
+    "heroSubcopy": "",
+    "aboutBody": "",
+    "address": "",
+    "hours": "",
+    "phone": "",
+    "email": "",
+    "orderUrl": "",
+    "noticeWindow": "",
+    "fulfillment": "",
+    "allergens": "",
+    "socials": { "instagram": "", "tiktok": "", "facebook": "", "twitter": "" }
+  },
+  "pricing": [],
+  "menu": [],
+  "gallery": [],
+  "reviews": []
+}
