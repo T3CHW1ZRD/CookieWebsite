@@ -1,12 +1,22 @@
 import { useState, type ReactNode } from "react";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 
-// Set the password here. This is *display-level* only — anyone who can read
-// the built JS could find it. Real security comes from the GitHub token
-// (which is scoped to one repo and only the owner pastes it in). The
-// password just keeps strangers from poking around the dashboard UI.
-const ADMIN_PASSWORD = "lailah2025";
+// SHA-256 hash of the actual password. The plaintext is NEVER stored
+// anywhere in the repo or the bundle. On login we hash the user's input
+// and compare. To rotate the password:
+//   node -e "console.log(require('crypto').createHash('sha256').update('NEW_PASSWORD').digest('hex'))"
+// then paste the output here.
+const ADMIN_PASSWORD_HASH = "c9be8320fcf88bbc5366be97d00afc106dd8751a1136e4491550367fe9f3090a";
+
 export const SESSION_KEY = "lailahs.admin.session";
+
+async function sha256Hex(str: string): Promise<string> {
+  const bytes = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 export default function AdminGate({ children }: { children: ReactNode }) {
   const [unlocked, setUnlocked] = useState(
@@ -14,14 +24,22 @@ export default function AdminGate({ children }: { children: ReactNode }) {
   );
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      window.sessionStorage.setItem(SESSION_KEY, "1");
-      setUnlocked(true);
-    } else {
-      setError("Wrong password.");
+    setError("");
+    setChecking(true);
+    try {
+      const hash = await sha256Hex(password);
+      if (hash === ADMIN_PASSWORD_HASH) {
+        window.sessionStorage.setItem(SESSION_KEY, "1");
+        setUnlocked(true);
+      } else {
+        setError("Wrong password.");
+      }
+    } finally {
+      setChecking(false);
     }
   }
 
@@ -55,8 +73,13 @@ export default function AdminGate({ children }: { children: ReactNode }) {
           autoFocus
         />
         {error && <p className="mt-2 text-sm text-primary">{error}</p>}
-        <button type="submit" className="btn-primary mt-6 w-full">
-          Unlock
+        <button
+          type="submit"
+          disabled={checking}
+          className="btn-primary mt-6 w-full disabled:opacity-60"
+        >
+          {checking && <Loader2 size={16} className="animate-spin" />}
+          {checking ? "Checking…" : "Unlock"}
         </button>
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Forgot your password? Ask whoever built this site.

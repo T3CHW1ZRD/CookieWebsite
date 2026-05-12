@@ -46,7 +46,7 @@ export default function App() {
         <Route path="/" element={<Site />} />
         {ADMIN_ENABLED && Dashboard && (
           <Route
-            path="/admin"
+            path="/CookieAdmin"
             element={
               <Suspense fallback={<div className="p-10 text-center">Loading…</div>}>
                 <Dashboard />
@@ -54,6 +54,9 @@ export default function App() {
             }
           />
         )}
+        {/* Catch-all so visiting /#about, /#menu, etc. still renders the site
+            and the browser can scroll to the matching section id. */}
+        <Route path="*" element={<Site />} />
       </Routes>
     </ContentProvider>
   );
