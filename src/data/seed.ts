@@ -85,21 +85,11 @@ export const seedContent: SiteContent = {
     },
     {
       id: "g3",
-      src: asset("gallery/caramel-crunch-shortbread.webp"),
-      caption: "Caramel Crunch Shortbread",
-    },
-    {
-      id: "g4",
       src: asset("gallery/salted-sticky-date.jpg"),
       caption: "Box: Salted Sticky Date + Stuffed Pistachio + Classic Chocolate Chip",
     },
     {
-      id: "g5",
-      src: asset("gallery/stuffed-strawberry-cheesecake.jpg"),
-      caption: "Stuffed Strawberry Cheesecake",
-    },
-    {
-      id: "g6",
+      id: "g4",
       src: asset("gallery/smores.jpg"),
       caption: "S'mores",
     },
