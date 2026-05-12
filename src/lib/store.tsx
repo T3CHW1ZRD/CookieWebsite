@@ -11,11 +11,14 @@ import type { SiteContent } from "../types";
 import { seedContent } from "../data/seed";
 import contentJson from "../data/content.json";
 
-const STORAGE_KEY = "lailahs.content.v2";
+const STORAGE_KEY = "lailahs.content.v3";
+const ADMIN_ENABLED = import.meta.env.VITE_ENABLE_ADMIN === "true";
 
 function loadInitial(): SiteContent {
-  // 1. Use what's saved in this browser, if anything.
-  if (typeof window !== "undefined") {
+  // 1. Only the admin dashboard uses localStorage as its preview store; on a
+  //    plain client build we always use the seeded / committed content so a
+  //    stale localStorage entry can't override real edits to seed.ts.
+  if (ADMIN_ENABLED && typeof window !== "undefined") {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw) as SiteContent;
@@ -44,6 +47,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [content, setContentState] = useState<SiteContent>(loadInitial);
 
   useEffect(() => {
+    if (!ADMIN_ENABLED) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
     } catch {
