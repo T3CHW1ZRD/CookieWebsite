@@ -11,14 +11,26 @@ import type { SiteContent } from "../types";
 import { seedContent } from "../data/seed";
 import contentJson from "../data/content.json";
 
-const STORAGE_KEY = "lailahs.content.v3";
+const STORAGE_KEY = "lailahs.content.v4";
+const ADMIN_SESSION_KEY = "lailahs.admin.session";
 const ADMIN_ENABLED = import.meta.env.VITE_ENABLE_ADMIN === "true";
 
+// True only when the admin password has been entered this browser session.
+// We use this to decide whether localStorage should preview unpublished
+// edits. Plain visitors always read the freshly-published content.json,
+// never localStorage.
+function isAdminSession() {
+  if (!ADMIN_ENABLED || typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(ADMIN_SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function loadInitial(): SiteContent {
-  // 1. Only the admin dashboard uses localStorage as its preview store; on a
-  //    plain client build we always use the seeded / committed content so a
-  //    stale localStorage entry can't override real edits to seed.ts.
-  if (ADMIN_ENABLED && typeof window !== "undefined") {
+  // 1. Admin's in-progress edits (only when they've unlocked the dashboard).
+  if (isAdminSession()) {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw) as SiteContent;
@@ -26,7 +38,7 @@ function loadInitial(): SiteContent {
       // fall through
     }
   }
-  // 2. Use the committed content.json if it has real data.
+  // 2. Published content from the repo.
   const fromFile = contentJson as Partial<SiteContent>;
   if (fromFile.menu && fromFile.menu.length > 0) {
     return fromFile as SiteContent;
@@ -47,7 +59,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [content, setContentState] = useState<SiteContent>(loadInitial);
 
   useEffect(() => {
-    if (!ADMIN_ENABLED) return;
+    if (!isAdminSession()) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
     } catch {

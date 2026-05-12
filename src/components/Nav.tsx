@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { Menu as MenuIcon, X } from "lucide-react";
 import { useContent } from "../lib/store";
-
-const ADMIN_ENABLED = import.meta.env.VITE_ENABLE_ADMIN === "true";
 
 const LINKS = [
   { href: "#about", label: "About" },
@@ -61,11 +58,6 @@ export default function Nav() {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
-          {ADMIN_ENABLED && (
-            <Link to="/admin" className="text-xs text-muted-foreground hover:text-primary">
-              Admin
-            </Link>
-          )}
           <a
             href={content.shop.orderUrl}
             target="_blank"
@@ -109,17 +101,6 @@ export default function Nav() {
                 Order on Instagram
               </a>
             </li>
-            {ADMIN_ENABLED && (
-              <li>
-                <Link
-                  to="/admin"
-                  onClick={() => setOpen(false)}
-                  className="text-sm text-muted-foreground"
-                >
-                  Admin
-                </Link>
-              </li>
-            )}
           </ul>
         </div>
       )}

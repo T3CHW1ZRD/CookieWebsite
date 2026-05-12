@@ -2,6 +2,9 @@
 
 interface ImportMetaEnv {
   readonly VITE_ENABLE_ADMIN?: string;
+  readonly VITE_GH_OWNER?: string;
+  readonly VITE_GH_REPO?: string;
+  readonly VITE_GH_BRANCH?: string;
 }
 
 interface ImportMeta {

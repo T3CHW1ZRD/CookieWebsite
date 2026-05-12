@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, AlertCircle, Github, Download, ExternalLink, Loader2 } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Github,
+  Download,
+  ExternalLink,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { useContent } from "../lib/store";
 import {
-  loadConfig,
+  REPO,
   loadToken,
   publishContent,
-  saveConfig,
   saveToken,
   verifyAccess,
-  type GithubConfig,
 } from "../lib/github";
 
 type State =
@@ -22,18 +29,13 @@ type State =
 export default function PublishPanel() {
   const { content } = useContent();
   const [token, setTokenState] = useState("");
-  const [cfg, setCfgState] = useState<GithubConfig>({ owner: "", repo: "", branch: "main" });
+  const [showToken, setShowToken] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
 
   useEffect(() => {
     setTokenState(loadToken());
-    setCfgState(loadConfig());
   }, []);
 
-  function persistCfg(next: GithubConfig) {
-    setCfgState(next);
-    saveConfig(next);
-  }
   function persistToken(next: string) {
     setTokenState(next);
     saveToken(next);
@@ -41,13 +43,13 @@ export default function PublishPanel() {
   }
 
   async function verify() {
-    if (!token || !cfg.owner || !cfg.repo) {
-      setState({ kind: "error", message: "Fill in the token, owner, and repo first." });
+    if (!token) {
+      setState({ kind: "error", message: "Paste your access token first." });
       return;
     }
     setState({ kind: "verifying" });
     try {
-      const r = await verifyAccess({ token, cfg });
+      const r = await verifyAccess(token);
       setState({ kind: "verified", login: r.login });
     } catch (e) {
       setState({ kind: "error", message: (e as Error).message });
@@ -55,13 +57,13 @@ export default function PublishPanel() {
   }
 
   async function publish() {
-    if (!token || !cfg.owner || !cfg.repo) {
-      setState({ kind: "error", message: "Fill in the token, owner, and repo first." });
+    if (!token) {
+      setState({ kind: "error", message: "Paste your access token first." });
       return;
     }
     setState({ kind: "publishing" });
     try {
-      const r = await publishContent(content, { token, cfg });
+      const r = await publishContent(content, token);
       setState({ kind: "published", commitUrl: r.commitUrl });
     } catch (e) {
       setState({ kind: "error", message: (e as Error).message });
@@ -83,53 +85,40 @@ export default function PublishPanel() {
       <section className="rounded-2xl border border-border bg-card p-6 space-y-5">
         <div className="flex items-center gap-3">
           <Github size={22} className="text-primary" />
-          <h2 className="font-display text-2xl">Publish to your website</h2>
+          <h2 className="font-display text-2xl">Publish your changes</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Connect once. After that, hit <strong>Publish</strong> and your edits go live in about a
-          minute.
+          Paste your access token <strong>once</strong>. After that, every edit just needs the
+          green <strong>Publish</strong> button — your changes go live in about a minute.
         </p>
 
-        <div className="grid sm:grid-cols-3 gap-3">
-          <label className="block">
-            <span className="block text-sm font-medium mb-1">GitHub username</span>
-            <input
-              value={cfg.owner}
-              onChange={(e) => persistCfg({ ...cfg, owner: e.target.value.trim() })}
-              placeholder="e.g. ayham"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-sm font-medium mb-1">Repo name</span>
-            <input
-              value={cfg.repo}
-              onChange={(e) => persistCfg({ ...cfg, repo: e.target.value.trim() })}
-              placeholder="goodasscookies"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-sm font-medium mb-1">Branch</span>
-            <input
-              value={cfg.branch}
-              onChange={(e) => persistCfg({ ...cfg, branch: e.target.value.trim() || "main" })}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
-            />
-          </label>
+        <div className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground border border-border">
+          Connected repo: <code className="font-mono text-foreground">{REPO.owner}/{REPO.repo}</code>
+          {" · branch "}
+          <code className="font-mono text-foreground">{REPO.branch}</code>
         </div>
 
         <label className="block">
-          <span className="block text-sm font-medium mb-1">GitHub token</span>
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => persistToken(e.target.value)}
-            placeholder="github_pat_..."
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring font-mono text-sm"
-          />
+          <span className="block text-sm font-medium mb-1">Access token</span>
+          <div className="relative">
+            <input
+              type={showToken ? "text" : "password"}
+              value={token}
+              onChange={(e) => persistToken(e.target.value)}
+              placeholder="github_pat_..."
+              className="w-full rounded-lg border border-border bg-background pl-3 pr-11 py-3 outline-none focus:ring-2 focus:ring-ring font-mono text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowToken((s) => !s)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground"
+              aria-label={showToken ? "Hide token" : "Show token"}
+            >
+              {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           <span className="mt-1 block text-xs text-muted-foreground">
-            Saved in this browser only. Never sent anywhere except github.com.
+            Stored in this browser only. Never sent anywhere except github.com.
           </span>
         </label>
 
@@ -139,7 +128,7 @@ export default function PublishPanel() {
             disabled={state.kind === "verifying"}
             className="btn-ghost text-sm py-2 px-4"
           >
-            {state.kind === "verifying" ? <Loader2 size={16} className="animate-spin" /> : null}
+            {state.kind === "verifying" && <Loader2 size={16} className="animate-spin" />}
             Test connection
           </button>
           <button
@@ -147,11 +136,11 @@ export default function PublishPanel() {
             disabled={state.kind === "publishing"}
             className="btn-primary text-sm py-2 px-4"
           >
-            {state.kind === "publishing" ? <Loader2 size={16} className="animate-spin" /> : null}
+            {state.kind === "publishing" && <Loader2 size={16} className="animate-spin" />}
             {state.kind === "publishing" ? "Publishing…" : "Publish"}
           </button>
           <button onClick={download} className="btn-ghost text-sm py-2 px-4">
-            <Download size={16} /> Download JSON
+            <Download size={16} /> Download backup
           </button>
         </div>
 
@@ -165,7 +154,8 @@ export default function PublishPanel() {
           <div className="flex items-start gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
             <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
             <div>
-              Published! GitHub Pages will rebuild in about 1 minute.{" "}
+              <strong>Published!</strong> The site will rebuild in about 1 minute. Refresh the
+              main page to see your changes.{" "}
               {state.commitUrl && (
                 <a
                   href={state.commitUrl}
@@ -185,6 +175,10 @@ export default function PublishPanel() {
             <div>
               <strong>Couldn&rsquo;t connect.</strong>
               <p className="mt-1 break-all">{state.message}</p>
+              <p className="mt-2 text-xs">
+                Most common cause: the token expired, or it doesn&rsquo;t have access to the
+                connected repo. Ask whoever set up your site for a fresh one.
+              </p>
             </div>
           </div>
         )}
@@ -192,31 +186,19 @@ export default function PublishPanel() {
 
       <aside className="rounded-2xl border border-border bg-card p-6 text-sm space-y-3">
         <h3 className="font-display text-xl">First-time setup</h3>
-        <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+        <ol className="list-decimal pl-5 space-y-2 text-muted-foreground">
+          <li>Make your edits in the other tabs (Shop info, Flavours, Pricing, Gallery).</li>
+          <li>Come to this tab and paste the access token you were given.</li>
           <li>
-            Open{" "}
-            <a
-              href="https://github.com/settings/personal-access-tokens/new"
-              target="_blank"
-              rel="noreferrer"
-              className="text-primary underline"
-            >
-              github.com → fine-grained tokens
-            </a>
-            .
-          </li>
-          <li>Token name: anything. Expiration: 1 year.</li>
-          <li>
-            Repository access → <strong>Only select repositories</strong> → pick your site repo.
+            Hit <strong>Test connection</strong>. You should see &ldquo;Ready to publish.&rdquo;
           </li>
           <li>
-            Permissions → <strong>Contents: Read and write</strong>. That&rsquo;s the only one needed.
+            Hit <strong>Publish</strong>. Wait about a minute, then refresh the site.
           </li>
-          <li>Click <strong>Generate</strong>, copy the token, paste it here.</li>
-          <li>Click <strong>Test connection</strong>, then <strong>Publish</strong>.</li>
         </ol>
         <p className="pt-2 text-xs text-muted-foreground">
-          You only do this once. After that, every edit is just &ldquo;Publish.&rdquo;
+          You only paste the token <strong>once per browser</strong>. After that, just edit and
+          hit Publish.
         </p>
       </aside>
     </div>

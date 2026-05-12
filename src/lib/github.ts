@@ -1,15 +1,16 @@
-// Commits src/data/content.json to a GitHub repo using a personal access token.
-// The token never leaves the user's browser; it's stored in localStorage so the
-// owner doesn't have to paste it every visit.
+// Commits src/data/content.json to a GitHub repo using a fine-grained
+// personal access token. The repo (owner/name/branch) is hardcoded at
+// build time via VITE_GH_* env vars; the dashboard only ever asks the
+// user for the PAT. The token never leaves the user's browser, and a
+// properly-scoped PAT can ONLY touch this single repo.
 
-const TOKEN_KEY = "goodasscookies.gh.token";
-const CONFIG_KEY = "goodasscookies.gh.config";
+const TOKEN_KEY = "lailahs.gh.token";
 const CONTENT_PATH = "src/data/content.json";
 
-export type GithubConfig = {
-  owner: string;
-  repo: string;
-  branch: string;
+export const REPO = {
+  owner: import.meta.env.VITE_GH_OWNER ?? "",
+  repo: import.meta.env.VITE_GH_REPO ?? "",
+  branch: import.meta.env.VITE_GH_BRANCH ?? "main",
 };
 
 export function loadToken(): string {
@@ -28,29 +29,12 @@ export function clearToken() {
   window.localStorage.removeItem(TOKEN_KEY);
 }
 
-export function loadConfig(): GithubConfig {
-  try {
-    const raw = window.localStorage.getItem(CONFIG_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {
-    // fall through
-  }
-  return { owner: "", repo: "", branch: "main" };
-}
-
-export function saveConfig(cfg: GithubConfig) {
-  window.localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
-}
-
-type ApiOpts = { token: string; cfg: GithubConfig };
-
-async function gh(path: string, opts: ApiOpts, init: RequestInit = {}) {
-  const url = `https://api.github.com${path}`;
-  const res = await fetch(url, {
+async function gh(path: string, token: string, init: RequestInit = {}) {
+  const res = await fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
       Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${opts.token}`,
+      Authorization: `Bearer ${token}`,
       "X-GitHub-Api-Version": "2022-11-28",
       ...(init.body ? { "Content-Type": "application/json" } : {}),
       ...(init.headers || {}),
@@ -63,15 +47,16 @@ async function gh(path: string, opts: ApiOpts, init: RequestInit = {}) {
   return res.json();
 }
 
-export async function verifyAccess({ token, cfg }: ApiOpts): Promise<{ ok: true; login: string }> {
-  const me = await gh("/user", { token, cfg });
-  // Make sure the repo is also reachable with this token.
-  await gh(`/repos/${cfg.owner}/${cfg.repo}`, { token, cfg });
-  return { ok: true, login: me.login };
+export async function verifyAccess(token: string): Promise<{ login: string }> {
+  // /user confirms the token works at all.
+  const me = await gh("/user", token);
+  // Reading the repo confirms the token actually has access to *this*
+  // repo (a token scoped elsewhere would 404 even though /user succeeded).
+  await gh(`/repos/${REPO.owner}/${REPO.repo}`, token);
+  return { login: me.login };
 }
 
 function utf8ToBase64(str: string): string {
-  // Handles unicode safely.
   const bytes = new TextEncoder().encode(str);
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
@@ -80,21 +65,20 @@ function utf8ToBase64(str: string): string {
 
 export async function publishContent(
   contentJson: unknown,
-  { token, cfg }: ApiOpts
+  token: string
 ): Promise<{ commitUrl: string }> {
   const path = CONTENT_PATH;
-  const branch = cfg.branch || "main";
+  const branch = REPO.branch;
 
-  // Fetch current file SHA (required to update an existing file).
   let sha: string | undefined;
   try {
     const existing = await gh(
-      `/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${encodeURIComponent(branch)}`,
-      { token, cfg }
+      `/repos/${REPO.owner}/${REPO.repo}/contents/${path}?ref=${encodeURIComponent(branch)}`,
+      token
     );
     sha = existing.sha;
   } catch (err) {
-    // 404 means the file doesn't exist yet — that's fine.
+    // 404 is expected if content.json hasn't been committed yet.
     if (!(err instanceof Error) || !err.message.startsWith("GitHub 404")) throw err;
   }
 
@@ -106,8 +90,8 @@ export async function publishContent(
   };
 
   const result = await gh(
-    `/repos/${cfg.owner}/${cfg.repo}/contents/${path}`,
-    { token, cfg },
+    `/repos/${REPO.owner}/${REPO.repo}/contents/${path}`,
+    token,
     { method: "PUT", body: JSON.stringify(body) }
   );
 

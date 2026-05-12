@@ -3,10 +3,10 @@ import { Lock } from "lucide-react";
 
 // Set the password here. This is *display-level* only — anyone who can read
 // the built JS could find it. Real security comes from the GitHub token
-// (which only the owner pastes in once). The password just keeps strangers
-// from poking around the dashboard UI.
-const ADMIN_PASSWORD = "cookies123";
-const SESSION_KEY = "goodasscookies.admin.session";
+// (which is scoped to one repo and only the owner pastes it in). The
+// password just keeps strangers from poking around the dashboard UI.
+const ADMIN_PASSWORD = "lailah2025";
+export const SESSION_KEY = "lailahs.admin.session";
 
 export default function AdminGate({ children }: { children: ReactNode }) {
   const [unlocked, setUnlocked] = useState(

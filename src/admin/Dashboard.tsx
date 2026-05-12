@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw } from "lucide-react";
-import AdminGate from "./AdminGate";
+import { ArrowLeft, LogOut } from "lucide-react";
+import AdminGate, { SESSION_KEY } from "./AdminGate";
 import InfoEditor from "./InfoEditor";
 import MenuEditor from "./MenuEditor";
+import PricingEditor from "./PricingEditor";
 import GalleryEditor from "./GalleryEditor";
-import ReviewsEditor from "./ReviewsEditor";
 import PublishPanel from "./PublishPanel";
-import { useContent } from "../lib/store";
 
-type Tab = "info" | "menu" | "gallery" | "reviews" | "publish";
+type Tab = "info" | "menu" | "pricing" | "gallery" | "publish";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "info", label: "Shop info" },
-  { id: "menu", label: "Menu" },
+  { id: "menu", label: "Flavours" },
+  { id: "pricing", label: "Pricing" },
   { id: "gallery", label: "Gallery" },
-  { id: "reviews", label: "Reviews" },
   { id: "publish", label: "Publish" },
 ];
 
@@ -29,7 +28,11 @@ export default function Dashboard() {
 
 function DashboardInner() {
   const [tab, setTab] = useState<Tab>("info");
-  const { resetToSeed } = useContent();
+
+  function logout() {
+    window.sessionStorage.removeItem(SESSION_KEY);
+    window.location.reload();
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -45,14 +48,10 @@ function DashboardInner() {
             <span className="text-xl font-display text-primary">Dashboard</span>
           </div>
           <button
-            onClick={() => {
-              if (confirm("Reset all content to the placeholder demo? This wipes local edits.")) {
-                resetToSeed();
-              }
-            }}
+            onClick={logout}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary"
           >
-            <RotateCcw size={14} /> Reset demo
+            <LogOut size={14} /> Log out
           </button>
         </div>
       </header>
@@ -76,8 +75,8 @@ function DashboardInner() {
 
         {tab === "info" && <InfoEditor />}
         {tab === "menu" && <MenuEditor />}
+        {tab === "pricing" && <PricingEditor />}
         {tab === "gallery" && <GalleryEditor />}
-        {tab === "reviews" && <ReviewsEditor />}
         {tab === "publish" && <PublishPanel />}
       </div>
     </div>
