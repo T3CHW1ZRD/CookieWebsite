@@ -11,16 +11,11 @@ export default function About() {
     <section id="about" className="py-20 md:py-28">
       <div className="container-page grid md:grid-cols-[1fr_1.4fr] gap-12 items-center">
         <Reveal variant="left">
-          <div className="relative mx-auto md:mx-0 max-w-xs transform-gpu">
-            <div
-              className="absolute inset-0 -m-6 rounded-full bg-primary/15 blur-2xl transform-gpu"
-              style={{ willChange: "transform" }}
-              aria-hidden
-            />
+          <div className="mx-auto md:mx-0 max-w-xs">
             <img
               src={logoSrc}
               alt={content.shop.brandName}
-              className="relative w-full h-auto object-contain drop-shadow-lg"
+              className="w-full h-auto object-contain drop-shadow-lg"
             />
           </div>
         </Reveal>
